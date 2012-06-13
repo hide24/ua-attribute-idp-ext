@@ -50,6 +50,9 @@ public class UserAgentAttributeMapDataConnectorBeanDefinitionParser extends Base
     /** Name of the attribute carrying the value of the IdP attribute. */
     public static final String ATTRIBUTE_VALUE_ATTR_NAME = "attributeValue";
 
+    /** Name of the attribute carrying the CIDR block of the IdP attribute. */
+    public static final String CIDR_BLOCK_ATTRIBUTE_ID_ATTR_NAME = "cidrAttributeId";
+
     /** Class logger. */
     private final Logger log = LoggerFactory.getLogger(UserAgentAttributeMapDataConnectorBeanDefinitionParser.class);
 
@@ -77,16 +80,18 @@ public class UserAgentAttributeMapDataConnectorBeanDefinitionParser extends Base
      * 
      * @return the parsed forms of the elements
      */
-    private List<Pair<IPRange, Pair<String, String>>> parseAttributeMappings(List<Element> mappings) {
-        ArrayList<Pair<IPRange, Pair<String, String>>> parsedMappings =
-                new ArrayList<Pair<IPRange, Pair<String, String>>>();
+    private List<Pair<Pair<String, String>, Pair<String, String>>> parseAttributeMappings(List<Element> mappings) {
+        ArrayList<Pair<Pair<String, String>, Pair<String, String>>> parsedMappings =
+                new ArrayList<Pair<Pair<String, String>, Pair<String, String>>>();
 
         String ipRangeString;
         String attributeId;
         String attributeValue;
+        String cidrAttributeId;
         for (Element mapping : mappings) {
             ipRangeString = DatatypeHelper.safeTrimOrNullString(mapping.getAttributeNS(null, CIDR_BLOCK_ATTR_NAME));
-            if (ipRangeString == null) {
+            cidrAttributeId = DatatypeHelper.safeTrimOrNullString(mapping.getAttributeNS(null, CIDR_BLOCK_ATTRIBUTE_ID_ATTR_NAME));
+            if (ipRangeString == null && cidrAttributeId == null) {
                 log.debug("Ignoring mapping with missing or empty CIDR block");
             }
 
@@ -101,8 +106,14 @@ public class UserAgentAttributeMapDataConnectorBeanDefinitionParser extends Base
                 log.debug("Ignoring mapping with missing or empty attribute value");
             }
 
-            parsedMappings.add(new Pair<IPRange, Pair<String, String>>(IPRange.parseCIDRBlock(ipRangeString),
-                    new Pair<String, String>(attributeId, attributeValue)));
+            if (ipRangeString == null) {
+                parsedMappings.add(new Pair<Pair<String, String>, Pair<String, String>>(new Pair<String, String>("CIDR", ipRangeString),
+                        new Pair<String, String>(attributeId, attributeValue)));
+            }
+            if (cidrAttributeId == null) {
+              parsedMappings.add(new Pair<Pair<String, String>, Pair<String, String>>(new Pair<String, String>("AttributeId", cidrAttributeId),
+                      new Pair<String, String>(attributeId, attributeValue)));
+            }
         }
 
         return parsedMappings;

@@ -43,14 +43,14 @@ public class UserAgentAttributeMapDataConnector extends BaseDataConnector {
     private final Logger log = LoggerFactory.getLogger(UserAgentAttributeMapDataConnector.class);
 
     /** Map from IP ranges to the attribute name/value pairs that they trigger. */
-    private List<Pair<IPRange, Pair<String, String>>> attributeMappings;
+    private List<Pair<Pair<String, String>, Pair<String, String>>> attributeMappings;
 
     /**
      * Sets the mappings from IP ranges to attributes/values.
      * 
      * @param mappings mappings from IP ranges to attributes/values
      */
-    public void setAttributeMappings(List<Pair<IPRange, Pair<String, String>>> mappings) {
+    public void setAttributeMappings(List<Pair<Pair<String, String>, Pair<String, String>>> mappings) {
         attributeMappings = mappings;
     }
 
@@ -64,9 +64,24 @@ public class UserAgentAttributeMapDataConnector extends BaseDataConnector {
 
         byte[] uaAddress = uaPrincpal.getUserAgentAddress();
         HashMap<String, BaseAttribute> mappedAttributes = new HashMap<String, BaseAttribute>();
-        for (Pair<IPRange, Pair<String, String>> mapping : attributeMappings) {
-            if (mapping.getFirst().contains(uaAddress)) {
-                addAttributeValue(mapping.getSecond(), mappedAttributes);
+        String type;
+        IPRange ipRange;
+        for (Pair<Pair<String, String>, Pair<String, String>> mapping : attributeMappings) {
+            type = mapping.getFirst().getFirst();
+            if (type.equals("CIDR")) {
+                ipRange = IPRange.parseCIDRBlock(mapping.getFirst().getSecond());
+                if (ipRange.contains(uaAddress)) {
+                    addAttributeValue(mapping.getSecond(), mappedAttributes);
+                }
+            } else {
+                String cidrAttributeId = mapping.getFirst().getSecond();
+                for (Object ipRangeObj : resolutionContext.getAttributeRequestContext().getAttributes().get(cidrAttributeId).getValues()) {
+	                  String ipRangeString = (String)ipRangeObj;
+                    ipRange = IPRange.parseCIDRBlock(ipRangeString);
+                    if (ipRange.contains(uaAddress)) {
+                        addAttributeValue(mapping.getSecond(), mappedAttributes);
+                    }
+                }
             }
         }
 

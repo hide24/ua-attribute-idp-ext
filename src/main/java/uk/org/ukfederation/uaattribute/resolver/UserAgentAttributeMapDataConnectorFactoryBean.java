@@ -25,14 +25,14 @@ import edu.internet2.middleware.shibboleth.idp.util.IPRange;
 public class UserAgentAttributeMapDataConnectorFactoryBean extends BaseDataConnectorFactoryBean {
 
     /** Map from IP ranges to the attribute name/value pairs that they trigger. */
-    private List<Pair<IPRange, Pair<String, String>>> attributeMappings;
+    private List<Pair<Pair<String, String>, Pair<String, String>>> attributeMappings;
     
     /**
      * Sets the mappings from IP ranges to attributes/values.
      * 
      * @param mappings mappings from IP ranges to attributes/values
      */
-    public void setAttributeMappings(List<Pair<IPRange, Pair<String, String>>> mappings){
+    public void setAttributeMappings(List<Pair<Pair<String, String>, Pair<String, String>>> mappings){
         attributeMappings = mappings;
     }
     
