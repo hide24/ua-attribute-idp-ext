@@ -106,11 +106,11 @@ public class UserAgentAttributeMapDataConnectorBeanDefinitionParser extends Base
                 log.debug("Ignoring mapping with missing or empty attribute value");
             }
 
-            if (ipRangeString == null) {
+            if (ipRangeString != null) {
                 parsedMappings.add(new Pair<Pair<String, String>, Pair<String, String>>(new Pair<String, String>("CIDR", ipRangeString),
                         new Pair<String, String>(attributeId, attributeValue)));
             }
-            if (cidrAttributeId == null) {
+            if (cidrAttributeId != null) {
               parsedMappings.add(new Pair<Pair<String, String>, Pair<String, String>>(new Pair<String, String>("AttributeId", cidrAttributeId),
                       new Pair<String, String>(attributeId, attributeValue)));
             }
