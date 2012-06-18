@@ -79,7 +79,7 @@ When any value of the attribute matches the IP address of the user agent, mappin
 The attribute needs to be resolved before starting this data connector.
 
 <resolver:DataConnector id="UNIQUE_ID" xsi:type="uadc:UserAgentMappedAttributes">
-   <uadc:Mapping cidrAttributeId="ATTRUBUTE_ID" attributeId="..." attributeValue="..." />
-   <resolver:Dependency ref="ATTRUBUTE_ID" />
+   <uadc:Mapping cidrAttributeId="ATTRIBUTE_ID" attributeId="..." attributeValue="..." />
+   <resolver:Dependency ref="ATTRIBUTE_ID" />
 </resolver:DataConnector>
 
