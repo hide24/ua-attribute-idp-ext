@@ -69,3 +69,17 @@ You can have more than one mapping rule with the same CIDR block.  This allows
 you to create multiple attributes for the given CIDR block.  You can also specify
 a given attribute ID more than once in order to generate multiple values
 for the ID.
+
+CIDR Block definition from another attribute
+=============================================
+The following XML attribute was added.
+* cidrAttributeId - the ID of the attribute that contains CIDR block definition
+
+When any value of the attribute matches the IP address of the user agent, mapping is triggered.
+The attribute needs to be resolved before starting this data connector.
+
+<resolver:DataConnector id="UNIQUE_ID" xsi:type="uadc:UserAgentMappedAttributes">
+   <uadc:Mapping cidrAttributeId="ATTRUBUTE_ID" attributeId="..." attributeValue="..." />
+   <resolver:Dependency ref="ATTRUBUTE_ID" />
+</resolver:DataConnector>
+

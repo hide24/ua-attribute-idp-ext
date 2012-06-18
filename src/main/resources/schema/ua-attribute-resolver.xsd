@@ -9,7 +9,8 @@
                 <sequence>
                     <element name="Mapping" minOccurs="0" maxOccurs="unbounded">
                         <complexType>
-                            <attribute name="cidrBlock" type="string" use="required" />
+                            <attribute name="cidrBlock" type="string" use="optional" />
+                            <attribute name="cidrAttributeId" type="string" use="optional" />
                             <attribute name="attributeId" type="string" use="required" />
                             <attribute name="attributeValue" type="string" use="required" />
                         </complexType>
