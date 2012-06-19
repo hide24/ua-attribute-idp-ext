@@ -17,6 +17,7 @@ package uk.org.ukfederation.uaattribute.resolver;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
@@ -75,8 +76,8 @@ public class UserAgentAttributeMapDataConnector extends BaseDataConnector {
                 }
             } else {
                 String cidrAttributeId = mapping.getFirst().getSecond();
-                for (Object ipRangeObj : resolutionContext.getAttributeRequestContext().getAttributes().get(cidrAttributeId).getValues()) {
-	                  String ipRangeString = (String)ipRangeObj;
+                List<String> values = getAttributeValue(resolutionContext, cidrAttributeId);
+                for (String ipRangeString : values) {
                     ipRange = IPRange.parseCIDRBlock(ipRangeString);
                     if (ipRange.contains(uaAddress)) {
                         addAttributeValue(mapping.getSecond(), mappedAttributes);
@@ -134,6 +135,32 @@ public class UserAgentAttributeMapDataConnector extends BaseDataConnector {
         if (!attribute.getValues().contains(attributeDescriptor.getSecond())) {
             attribute.getValues().add(attributeDescriptor.getSecond());
         }
+    }
+
+    /**
+     * Get attribute value from resolution context.
+     * If no {@link BasicAttribute} with the given ID exists, it is empty list will be return.
+     * 
+     * @param resolutionContext current resolution context
+     * @param attributeId attribute ID that you want values
+     * 
+     * @return list of values
+     */
+    private List<String> getAttributeValue(ShibbolethResolutionContext resolutionContext, String attributeId) {
+        log.debug("Get attribute value of (" + attributeId.toString() + ")");
+        List<String> values = new ArrayList<String>();
+        Map<String,BaseAttribute> attributes = resolutionContext.getAttributeRequestContext().getAttributes();
+        BaseAttribute attribute = attributes.get(attributeId);
+        if (attribute != null) {
+            for (Object value: attribute.getValues()) {
+                if (value != null && !value.toString().trim().equals("")) {
+                    values.add(value.toString().trim());
+                    log.debug("Detect value:" + value.toString().trim());
+                }
+            }
+        }
+        
+        return values;
     }
 
     /** {@inheritDoc} */
