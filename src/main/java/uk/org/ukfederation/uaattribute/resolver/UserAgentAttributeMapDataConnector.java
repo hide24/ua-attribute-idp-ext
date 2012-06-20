@@ -78,8 +78,10 @@ public class UserAgentAttributeMapDataConnector extends BaseDataConnector {
                 String cidrAttributeId = mapping.getFirst().getSecond();
                 List<String> values = getAttributeValue(resolutionContext, cidrAttributeId);
                 for (String ipRangeString : values) {
+                    log.debug("inspect IP range :" + ipRangeString.toString());
                     ipRange = IPRange.parseCIDRBlock(ipRangeString);
                     if (ipRange.contains(uaAddress)) {
+                        log.debug("uaAddress matches :" + ipRangeString.toString());
                         addAttributeValue(mapping.getSecond(), mappedAttributes);
                     }
                 }
@@ -149,16 +151,20 @@ public class UserAgentAttributeMapDataConnector extends BaseDataConnector {
     private List<String> getAttributeValue(ShibbolethResolutionContext resolutionContext, String attributeId) {
         log.debug("Get attribute value of (" + attributeId.toString() + ")");
         List<String> values = new ArrayList<String>();
-        Map<String,BaseAttribute> attributes = resolutionContext.getAttributeRequestContext().getAttributes();
-        BaseAttribute attribute = attributes.get(attributeId);
-        if (attribute != null) {
-            for (Object value: attribute.getValues()) {
-                if (value != null && !value.toString().trim().equals("")) {
-                    values.add(value.toString().trim());
-                    log.debug("Detect value:" + value.toString().trim());
+        try {
+            BaseAttribute attribute = resolutionContext.getResolvedAttributeDefinitions().get(attributeId).resolve(resolutionContext);
+            if (attribute != null) {
+                for (Object value: attribute.getValues()) {
+                    if (value != null && !value.toString().trim().equals("")) {
+                        values.add(value.toString().trim());
+                        log.debug("Detect value:" + value.toString().trim());
+                    }
                 }
             }
+        } catch(AttributeResolutionException e) {
+            
         }
+//        BaseAttribute attribute = attributes.get(attributeId).get(attributeId);
         
         return values;
     }
